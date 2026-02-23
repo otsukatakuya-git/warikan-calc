@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>割り勘計算機</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-color: #007AFF; /* iOS Blue */
+    --background-color: #f2f2f7; /* iOS Light Gray Background */
+    --card-background: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: #8e8e93;
+    --border-color: #c6c6c8;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 375px; /* Mobile preview width */
+    background-color: var(--background-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+  }
+
+  .header {
+    background-color: var(--card-background);
+    padding: 16px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .input-section {
+    background-color: var(--card-background);
+    margin-top: 32px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .input-group {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .input-group:last-child {
+    border-bottom: none;
+  }
+
+  .input-label {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .input-field {
+    width: 120px;
+    height: 50px;
+    border: none;
+    text-align: right;
+    font-size: 18px;
+    font-family: inherit;
+    background: transparent;
+    outline: none;
+    color: var(--text-primary);
+  }
+  
+  .input-field::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .unit {
+    margin-left: 8px;
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+
+  .button-container {
+    padding: 24px 16px;
+  }
+
+  .calc-button {
+    width: 100%;
+    height: 56px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .calc-button:active {
+    opacity: 0.7;
+  }
+
+  .result-section {
+    background-color: var(--card-background);
+    margin-top: 16px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0 16px;
+    display: none;
+  }
+
+  .result-section.active {
+    display: block;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .result-item {
+    padding: 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .result-item:last-child {
+    border-bottom: none;
+  }
+
+  .result-label {
+    font-size: 16px;
+  }
+
+  .result-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .result-value.remainder {
+    color: #FF3B30; /* iOS Red */
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="header">
+    割り勘計算
+  </div>
+
+  <div class="input-section">
+    <div class="input-group">
+      <div class="input-label">総額</div>
+      <input type="number" id="totalAmount" class="input-field" placeholder="0" inputmode="numeric">
+      <div class="unit">円</div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">上司の人数</div>
+      <input type="number" id="bossCount" class="input-field" placeholder="0" inputmode="numeric">
+      <div class="unit">人</div>
+    </div>
+    <div class="input-group">
+      <div class="input-label">部下の人数</div>
+      <input type="number" id="subCount" class="input-field" placeholder="0" inputmode="numeric">
+      <div class="unit">人</div>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <button class="calc-button" onclick="calculate()">計算する</button>
+  </div>
+
+  <div class="result-section" id="resultSection">
+    <div class="result-item">
+      <div class="result-label">上司の支払額</div>
+      <div class="result-value"><span id="bossPay">0</span> 円</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">部下の支払額</div>
+      <div class="result-value"><span id="subPay">0</span> 円</div>
+    </div>
+    <div class="result-item">
+      <div class="result-label">余り（積立金）</div>
+      <div class="result-value remainder"><span id="remainder">0</span> 円</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function calculate() {
+    const totalAmount = parseInt(document.getElementById('totalAmount').value) || 0;
+    const bossCount = parseInt(document.getElementById('bossCount').value) || 0;
+    const subCount = parseInt(document.getElementById('subCount').value) || 0;
+
+    const resultSection = document.getElementById('resultSection');
+    const bossPayEl = document.getElementById('bossPay');
+    const subPayEl = document.getElementById('subPay');
+    const remainderEl = document.getElementById('remainder');
+
+    if (totalAmount <= 0) {
+        alert("総額を入力してください。");
+        return;
+    }
+    if (bossCount === 0 && subCount === 0) {
+        alert("人数を入力してください。");
+        return;
+    }
+
+    let subPay = 0;
+    let bossPay = 0;
+
+    if (subCount > 0 && bossCount > 0) {
+        // 全体の金額から上司が多めに払う分（1000円×上司の人数）を引く
+        let baseSubPay = (totalAmount - (bossCount * 1000)) / (bossCount + subCount);
+        
+        // マイナスになる場合は0円
+        if (baseSubPay < 0) baseSubPay = 0;
+        
+        // 部下の支払額：100円単位切り上げ
+        subPay = Math.ceil(baseSubPay / 100) * 100;
+        
+        // 上司の支払額：部下より1000円多く
+        bossPay = subPay + 1000;
+    } else if (bossCount > 0 && subCount === 0) {
+        let baseBossPay = totalAmount / bossCount;
+        bossPay = Math.ceil(baseBossPay / 100) * 100;
+        subPay = 0;
+    } else if (subCount > 0 && bossCount === 0) {
+        let baseSubPay = totalAmount / subCount;
+        subPay = Math.ceil(baseSubPay / 100) * 100;
+        bossPay = 0;
+    }
+
+    // 集まった金額を計算
+    const totalCollected = (bossPay * bossCount) + (subPay * subCount);
+    
+    // 余り＝集まった金額ー総額
+    const remainder = totalCollected - totalAmount;
+
+    // もし総額に満たない場合（非常に特殊なケース）の保険
+    if (remainder < 0) {
+        alert("計算エラー：金額が不足しています。");
+        return;
+    }
+
+    // 表示を更新
+    bossPayEl.textContent = bossPay.toLocaleString();
+    subPayEl.textContent = subPay.toLocaleString();
+    remainderEl.textContent = remainder.toLocaleString();
+
+    // 結果セクションを表示
+    resultSection.classList.remove('active');
+    // アニメーションを再トリガーするためのハック
+    void resultSection.offsetWidth; 
+    resultSection.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
